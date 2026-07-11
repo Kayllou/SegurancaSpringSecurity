@@ -45,5 +45,7 @@ public class ConfiguracoesSeguranca {
                 .rememberMe(rememberMe -> rememberMe.key("lembrarDeMim")
                         .alwaysRemember(true))
                 .build();
+
+        //token validaty seconds
     }
 }
