@@ -46,6 +46,6 @@ public class ConfiguracoesSeguranca {
                         .alwaysRemember(true))
                 .build();
 
-        //token validaty seconds
+        //token validaty seconds(111)
     }
 }
