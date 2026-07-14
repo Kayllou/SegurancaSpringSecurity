@@ -10,6 +10,7 @@ import med.voll.web_application.domain.usuario.Perfil;
 import med.voll.web_application.domain.usuario.Usuario;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +25,6 @@ public class MedicoController {
 
     private static final String PAGINA_LISTAGEM = "medico/listagem-medicos";
     private static final String PAGINA_CADASTRO = "medico/formulario-medico";
-    private static final String PAGINA_ERRO = "erro/500";
     private static final String REDIRECT_LISTAGEM = "redirect:/medicos?sucesso";
 
     private final MedicoService service;
@@ -39,19 +39,16 @@ public class MedicoController {
     }
 
     @GetMapping
-    public String carregarPaginaListagem(@PageableDefault Pageable paginacao, Model model, @AuthenticationPrincipal Usuario logado) {
-        if(logado.getPerfil() == Perfil.MEDICO)
-            return PAGINA_ERRO;
+    @PreAuthorize("hasRole('ATENDENTE') OR hasRole('PACIENTE')")
+    public String carregarPaginaListagem(@PageableDefault Pageable paginacao, Model model) {
         var medicosCadastrados = service.listar(paginacao);
         model.addAttribute("medicos", medicosCadastrados);
         return PAGINA_LISTAGEM;
     }
 
     @GetMapping("formulario")
-    public String carregarPaginaCadastro(Long id, Model model, @AuthenticationPrincipal Usuario logado) {
-        if(logado.getPerfil() != Perfil.ATENDENTE)
-            return PAGINA_ERRO;
-
+    @PreAuthorize("hasRole('ATENDENTE')")
+    public String carregarPaginaCadastro(Long id, Model model) {
         if (id != null) {
             model.addAttribute("dados", service.carregarPorId(id));
         } else {
@@ -62,10 +59,8 @@ public class MedicoController {
     }
 
     @PostMapping
-    public String cadastrar(@Valid @ModelAttribute("dados") DadosCadastroMedico dados, BindingResult result, Model model, @AuthenticationPrincipal Usuario logado) {
-        if(logado.getPerfil() != Perfil.ATENDENTE)
-            return PAGINA_ERRO;
-
+    @PreAuthorize("hasRole('ATENDENTE')")
+    public String cadastrar(@Valid @ModelAttribute("dados") DadosCadastroMedico dados, BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("dados", dados);
             return PAGINA_CADASTRO;
@@ -82,10 +77,8 @@ public class MedicoController {
     }
 
     @DeleteMapping
-    public String excluir(Long id, @AuthenticationPrincipal Usuario logado) {
-        if(logado.getPerfil() != Perfil.ATENDENTE)
-            return PAGINA_ERRO;
-
+    @PreAuthorize("hasRole('ATENDENTE')")
+    public String excluir(Long id) {
         service.excluir(id);
         return REDIRECT_LISTAGEM;
     }
