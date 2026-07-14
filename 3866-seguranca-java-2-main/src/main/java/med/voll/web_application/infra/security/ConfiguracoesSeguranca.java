@@ -27,7 +27,7 @@ public class ConfiguracoesSeguranca {
                         req.requestMatchers(HttpMethod.GET, "/medicos").hasAnyRole("ATENDENTE", "PACIENTE");
                         req.requestMatchers("/medicos/**").hasRole("ATENDENTE");
                         req.requestMatchers(HttpMethod.POST, "/consultas/**").hasAnyRole("ATENDENTE", "PACIENTE");
-                        preq.requestMatchers(HttpMethod.PUT, "/consultas/**").hasAnyRole("ATENDENTE", "PACIENTE");
+                        req.requestMatchers(HttpMethod.PUT, "/consultas/**").hasAnyRole("ATENDENTE", "PACIENTE");
                         req.anyRequest().authenticated();
                     })
                 .formLogin(form -> form.loginPage("/login")
