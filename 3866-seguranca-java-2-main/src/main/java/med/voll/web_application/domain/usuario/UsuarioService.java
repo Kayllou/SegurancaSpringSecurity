@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -54,5 +55,16 @@ public class UsuarioService implements UserDetailsService {
         logado.alterarSenha(senhaCriptografada);
 
         usuarioRepository.save(logado);
+    }
+
+    public void enviarToken(String email) {
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCase(email).orElseThrow(
+                () -> new RegraDeNegocioException("usuario não encontrado")
+        );
+        String token = UUID.randomUUID().toString();
+        usuario.setToken(token);
+        usuario.setExpiracaoToken(LocalDateTime.now().plusMinutes(15));
+
+        usuarioRepository.save(usuario);
     }
 }
